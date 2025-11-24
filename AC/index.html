@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Audio Modulation Studio</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.25);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --error: #f87171;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1f2937, #0f172a 55%);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 2rem clamp(1.5rem, 4vw, 4rem) 3rem;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    h1 {
+      margin: 0.2rem 0;
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+    p.subtitle {
+      margin: 0;
+      color: var(--muted);
+    }
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .grid.two {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.6);
+    }
+    .card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.3rem;
+    }
+    .card p {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    button,
+    label.upload-label {
+      border: none;
+      border-radius: 999px;
+      padding: 0.75rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background: var(--accent);
+      color: #0f172a;
+      box-shadow: 0 10px 20px rgba(56, 189, 248, 0.35);
+      text-align: center;
+    }
+    button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      box-shadow: none;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    button:not(:disabled):hover,
+    label.upload-label:hover {
+      transform: translateY(-2px);
+    }
+    .status {
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .graphs {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .graph-card {
+      background: #0b1220;
+      border-radius: 1rem;
+      padding: 1rem 1.2rem 1.5rem;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      position: relative;
+    }
+    .graph-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    canvas {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(145deg, #0f172a 0%, #0b1220 100%);
+      border-radius: 0.8rem;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .error {
+      color: var(--error);
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Audio Modulation Studio</h1>
+    <p class="subtitle">Capture, upload, and visualize classic modulation schemes directly in your browser.</p>
+  </header>
+
+  <section class="grid two">
+    <article class="card">
+      <h2>Live Recording</h2>
+      <p>Record directly through your microphone and generate real-time modulation views.</p>
+      <div class="controls">
+        <button id="startRecord">Start Recording</button>
+        <button id="stopRecord" class="secondary" disabled>Stop &amp; Analyze</button>
+      </div>
+      <div class="status" id="recordStatus">Microphone idle.</div>
+      <div class="error" id="recordError"></div>
+    </article>
+
+    <article class="card">
+      <h2>Upload Audio File</h2>
+      <p>Bring your own WAV/MP3/OGG file and explore how modulation transforms the waveform.</p>
+      <div class="controls">
+        <label class="upload-label" for="audioFile">Choose Audio File</label>
+        <input type="file" id="audioFile" accept="audio/*" />
+      </div>
+      <div class="status" id="uploadStatus">Awaiting file upload.</div>
+      <div class="error" id="uploadError"></div>
+    </article>
+  </section>
+
+  <section class="card">
+    <h2>Modulation Visualizer</h2>
+    <p>Each canvas renders 2,048 samples of the processed waveform.</p>
+    <div class="graphs">
+      <div class="graph-card">
+        <h3>Amplitude Modulation (AM)</h3>
+        <canvas id="amCanvas" width="480" height="180"></canvas>
+      </div>
+      <div class="graph-card">
+        <h3>Frequency Modulation (FM)</h3>
+        <canvas id="fmCanvas" width="480" height="180"></canvas>
+      </div>
+      <div class="graph-card">
+        <h3>Double Sideband SC</h3>
+        <canvas id="dsbCanvas" width="480" height="180"></canvas>
+      </div>
+      <div class="graph-card">
+        <h3>Single Sideband SC</h3>
+        <canvas id="ssbCanvas" width="480" height="180"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const TARGET_SAMPLES = 2048;
+    const CARRIER_FREQ = 4000;
+    const AM_INDEX = 0.8;
+    const FM_INDEX = 2000;
+
+    const canvases = {
+      am: document.getElementById("amCanvas"),
+      fm: document.getElementById("fmCanvas"),
+      dsb: document.getElementById("dsbCanvas"),
+      ssb: document.getElementById("ssbCanvas"),
+    };
+
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const recordStatus = document.getElementById("recordStatus");
+    const recordError = document.getElementById("recordError");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const uploadError = document.getElementById("uploadError");
+
+    document.getElementById("startRecord").addEventListener("click", async () => {
+      recordError.textContent = "";
+      if (!navigator.mediaDevices?.getUserMedia) {
+        recordError.textContent = "Microphone access is not supported in this browser.";
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size) recordedChunks.push(e.data);
+        };
+        mediaRecorder.onstop = () => stream.getTracks().forEach((t) => t.stop());
+        mediaRecorder.start();
+        recordStatus.textContent = "Recording... speak now and press stop when ready.";
+        toggleRecordButtons(true);
+      } catch (err) {
+        recordError.textContent = "Microphone permission denied.";
+      }
+    });
+
+    document.getElementById("stopRecord").addEventListener("click", async () => {
+      if (!mediaRecorder || mediaRecorder.state === "inactive") return;
+      recordStatus.textContent = "Processing recording...";
+      toggleRecordButtons(false);
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(recordedChunks, { type: "audio/webm" });
+        await analyzeBlob(blob, "Live recording analyzed.");
+      };
+      mediaRecorder.stop();
+    });
+
+    document.getElementById("audioFile").addEventListener("change", async (event) => {
+      uploadError.textContent = "";
+      const file = event.target.files?.[0];
+      if (!file) return;
+      uploadStatus.textContent = "Decoding audio...";
+      await analyzeBlob(file, `Loaded "${file.name}".`);
+    });
+
+    function toggleRecordButtons(isRecording) {
+      document.getElementById("startRecord").disabled = isRecording;
+      document.getElementById("stopRecord").disabled = !isRecording;
+    }
+
+    async function analyzeBlob(blob, successMessage) {
+      try {
+        const arrayBuffer = await blob.arrayBuffer();
+        const audioCtx = new AudioContext();
+        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        audioCtx.close();
+        const results = processAudioBuffer(audioBuffer);
+        drawAll(results);
+        recordStatus.textContent = successMessage || "Recording analyzed.";
+        uploadStatus.textContent = successMessage || "File analyzed.";
+      } catch (error) {
+        console.error(error);
+        recordError.textContent = "Unable to analyze audio.";
+        uploadError.textContent = "Unable to analyze audio.";
+      }
+    }
+
+    function processAudioBuffer(audioBuffer) {
+      const channelData = audioBuffer.getChannelData(0);
+      const downsampled = downsample(channelData);
+      const normalized = normalize(downsampled);
+      return generateModulations(normalized, audioBuffer.sampleRate * (normalized.length / channelData.length));
+    }
+
+    function downsample(data) {
+      if (data.length <= TARGET_SAMPLES) return data.slice();
+      const step = data.length / TARGET_SAMPLES;
+      const result = new Float32Array(TARGET_SAMPLES);
+      for (let i = 0; i < TARGET_SAMPLES; i++) {
+        result[i] = data[Math.floor(i * step)];
+      }
+      return result;
+    }
+
+    function normalize(data) {
+      const max = Math.max(...data.map((v) => Math.abs(v))) || 1;
+      return data.map((v) => v / max);
+    }
+
+    function generateModulations(samples, sampleRate) {
+      const dt = 1 / (sampleRate || 44100);
+      const am = new Float32Array(samples.length);
+      const fm = new Float32Array(samples.length);
+      const dsb = new Float32Array(samples.length);
+      const ssb = new Float32Array(samples.length);
+      let fmPhase = 0;
+      const analytic = hilbertTransform(samples);
+      for (let i = 0; i < samples.length; i++) {
+        const t = i * dt;
+        const carrier = Math.cos(2 * Math.PI * CARRIER_FREQ * t);
+        am[i] = (1 + AM_INDEX * samples[i]) * carrier;
+        fmPhase += 2 * Math.PI * (CARRIER_FREQ + FM_INDEX * samples[i]) * dt;
+        fm[i] = Math.cos(fmPhase);
+        dsb[i] = samples[i] * carrier;
+        const quadrature = Math.sin(2 * Math.PI * CARRIER_FREQ * t);
+        ssb[i] = samples[i] * carrier - analytic.imag[i] * quadrature;
+      }
+      return { am, fm, dsb, ssb };
+    }
+
+    function hilbertTransform(samples) {
+      const n = nearestPowerOfTwo(samples.length);
+      const re = new Float32Array(n);
+      const im = new Float32Array(n);
+      re.set(samples);
+      const spectrum = fft(re, im);
+      for (let i = 1; i < n / 2; i++) {
+        spectrum.re[i] *= 2;
+        spectrum.im[i] *= 2;
+      }
+      for (let i = n / 2 + 1; i < n; i++) {
+        spectrum.re[i] = 0;
+        spectrum.im[i] = 0;
+      }
+      const analytic = ifft(spectrum.re, spectrum.im);
+      return {
+        real: analytic.re.slice(0, samples.length),
+        imag: analytic.im.slice(0, samples.length),
+      };
+    }
+
+    function nearestPowerOfTwo(value) {
+      return 2 ** Math.ceil(Math.log2(value));
+    }
+
+    function fft(real, imag) {
+      const n = real.length;
+      if ((n & (n - 1)) !== 0) throw new Error("FFT length must be power of two.");
+      const re = real.slice();
+      const im = imag.slice();
+      bitReverseShuffle(re, im);
+      for (let len = 2; len <= n; len <<= 1) {
+        const ang = (-2 * Math.PI) / len;
+        const wlen = { re: Math.cos(ang), im: Math.sin(ang) };
+        for (let i = 0; i < n; i += len) {
+          let wRe = 1;
+          let wIm = 0;
+          for (let j = 0; j < len / 2; j++) {
+            const uRe = re[i + j];
+            const uIm = im[i + j];
+            const vRe = re[i + j + len / 2] * wRe - im[i + j + len / 2] * wIm;
+            const vIm = re[i + j + len / 2] * wIm + im[i + j + len / 2] * wRe;
+            re[i + j] = uRe + vRe;
+            im[i + j] = uIm + vIm;
+            re[i + j + len / 2] = uRe - vRe;
+            im[i + j + len / 2] = uIm - vIm;
+            const nextWRe = wRe * wlen.re - wIm * wlen.im;
+            const nextWIm = wRe * wlen.im + wIm * wlen.re;
+            wRe = nextWRe;
+            wIm = nextWIm;
+          }
+        }
+      }
+      return { re, im };
+    }
+
+    function ifft(real, imag) {
+      const conjugateRe = real.slice();
+      const conjugateIm = imag.map((v) => -v);
+      const spectrum = fft(conjugateRe, conjugateIm);
+      const n = real.length;
+      return {
+        re: spectrum.re.map((v) => v / n),
+        im: spectrum.im.map((v) => -v / n),
+      };
+    }
+
+    function bitReverseShuffle(re, im) {
+      const n = re.length;
+      let j = 0;
+      for (let i = 0; i < n; i++) {
+        if (i < j) {
+          [re[i], re[j]] = [re[j], re[i]];
+          [im[i], im[j]] = [im[j], im[i]];
+        }
+        let bit = n >> 1;
+        while (j & bit) {
+          j ^= bit;
+          bit >>= 1;
+        }
+        j ^= bit;
+      }
+    }
+
+    function drawAll(results) {
+      drawWaveform(canvases.am, results.am, "#38bdf8");
+      drawWaveform(canvases.fm, results.fm, "#a78bfa");
+      drawWaveform(canvases.dsb, results.dsb, "#34d399");
+      drawWaveform(canvases.ssb, results.ssb, "#f472b6");
+    }
+
+    function drawWaveform(canvas, data, stroke) {
+      const ctx = canvas.getContext("2d");
+      const { width, height } = canvas;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = "rgba(15,23,42,0.9)";
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      const len = data.length;
+      for (let i = 0; i < len; i++) {
+        const x = (i / (len - 1)) * width;
+        const y = height / 2 - (data[i] || 0) * (height / 2 - 10);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.1)";
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
+      ctx.stroke();
+    }
+
+    (function initPlaceholders() {
+      const placeholder = new Float32Array(TARGET_SAMPLES);
+      drawAll({ am: placeholder, fm: placeholder, dsb: placeholder, ssb: placeholder });
+    })();
+  </script>
+</body>
+</html>
+
