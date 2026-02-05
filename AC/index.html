@@ -2,450 +2,694 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audio Modulation Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vallox | India’s Hackathon Project Marketplace</title>
+  <meta
+    name="description"
+    content="Vallox is India’s marketplace for hackathon projects. Discover verified projects, connect buyers and sellers, and turn prototypes into real-world products."
+  />
+  <meta name="keywords" content="Vallox, hackathon projects, India startups, project marketplace, buy software project" />
+  <meta name="author" content="Vallox" />
+  <link rel="canonical" href="https://vallox.in/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Vallox | India’s Hackathon Project Marketplace" />
+  <meta
+    property="og:description"
+    content="Showcase, discover, and acquire hackathon projects across India with trust signals, search filters, and secure transaction workflows."
+  />
+  <meta property="og:url" content="https://vallox.in/" />
+  <meta property="og:site_name" content="Vallox" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Vallox | India’s Hackathon Project Marketplace" />
+  <meta
+    name="twitter:description"
+    content="From prototype to product: Vallox helps hackathon builders and buyers connect across India."
+  />
+
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --accent: #38bdf8;
-      --accent-soft: rgba(56, 189, 248, 0.25);
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --error: #f87171;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --bg: #f5f7ff;
+      --surface: #ffffff;
+      --surface-muted: #eef2ff;
+      --primary: #3452ff;
+      --primary-soft: rgba(52, 82, 255, 0.1);
+      --text: #0f1531;
+      --muted: #5b6488;
+      --border: #dbe2ff;
+      --success: #0fa86d;
+      --warning: #d98d00;
+      --shadow: 0 14px 35px rgba(17, 36, 120, 0.08);
+      font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    * {
-      box-sizing: border-box;
-    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #1f2937, #0f172a 55%);
-      min-height: 100vh;
       color: var(--text);
-      padding: 2rem clamp(1.5rem, 4vw, 4rem) 3rem;
+      background: linear-gradient(180deg, #edf1ff 0 25rem, var(--bg) 25rem 100%);
+      line-height: 1.5;
     }
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; }
+
+    .container {
+      width: min(1140px, 94vw);
+      margin-inline: auto;
     }
-    h1 {
-      margin: 0.2rem 0;
-      font-size: clamp(2rem, 4vw, 3rem);
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(6px);
+      background: rgba(245, 247, 255, 0.88);
+      border-bottom: 1px solid #e2e8ff;
     }
-    p.subtitle {
-      margin: 0;
-      color: var(--muted);
-    }
-    .grid {
-      display: grid;
-      gap: 1.5rem;
-    }
-    .grid.two {
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      margin-bottom: 2rem;
-    }
-    .card {
-      background: var(--card);
-      border-radius: 1rem;
-      padding: 1.5rem;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.6);
-    }
-    .card h2 {
-      margin: 0 0 0.5rem;
-      font-size: 1.3rem;
-    }
-    .card p {
-      margin-top: 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-    .controls {
+
+    .nav {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-    button,
-    label.upload-label {
-      border: none;
-      border-radius: 999px;
-      padding: 0.75rem 1.4rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-      background: var(--accent);
-      color: #0f172a;
-      box-shadow: 0 10px 20px rgba(56, 189, 248, 0.35);
-      text-align: center;
-    }
-    button.secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      box-shadow: none;
-    }
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    button:not(:disabled):hover,
-    label.upload-label:hover {
-      transform: translateY(-2px);
-    }
-    .status {
-      margin-top: 0.75rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .graphs {
-      display: grid;
-      gap: 1.5rem;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .graph-card {
-      background: #0b1220;
-      border-radius: 1rem;
-      padding: 1rem 1.2rem 1.5rem;
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      position: relative;
-    }
-    .graph-card h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1rem;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-    }
-    canvas {
-      width: 100%;
-      height: 180px;
-      background: linear-gradient(145deg, #0f172a 0%, #0b1220 100%);
-      border-radius: 0.8rem;
-      border: 1px solid rgba(148, 163, 184, 0.15);
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .tag {
-      display: inline-flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      margin-bottom: 0.8rem;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      flex-wrap: wrap;
     }
-    .error {
-      color: var(--error);
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.23rem;
+      letter-spacing: 0.02em;
+    }
+
+    .logo-dot {
+      width: 1.3rem;
+      height: 1.3rem;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #8fa0ff, #3452ff);
+      box-shadow: 0 0 0 6px rgba(52, 82, 255, 0.16);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: 0.93rem;
+      flex-wrap: wrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 0.7rem;
+      font: inherit;
+      font-weight: 700;
+      padding: 0.58rem 0.9rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--primary); color: #fff; }
+    .btn.ghost { background: #fff; border-color: var(--border); color: var(--primary); }
+
+    .hero {
+      margin: 1.35rem 0 2rem;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      box-shadow: var(--shadow);
+      padding: 1.1rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 0.76rem;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0.22rem 0.68rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      margin: 0.25rem 0 0.75rem;
+      line-height: 1.1;
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+    }
+
+    h2 { font-size: 1.45rem; margin: 0; }
+    h3 { margin: 0 0 0.5rem; font-size: 1.08rem; }
+
+    .muted { color: var(--muted); }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.65rem;
       margin-top: 0.5rem;
+    }
+
+    .kpi {
+      background: var(--surface-muted);
+      border-radius: 0.8rem;
+      padding: 0.75rem;
+    }
+
+    .kpi b { display: block; font-size: 1.08rem; }
+    .kpi small { color: var(--muted); }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: end;
+      flex-wrap: wrap;
+      margin: 2rem 0 0.8rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.85rem;
+    }
+
+    input, select, textarea {
+      border: 1px solid var(--border);
+      border-radius: 0.62rem;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      padding: 0.6rem 0.66rem;
+      width: 100%;
+    }
+
+    .result-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      margin: 0 0.24rem 0.3rem 0;
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .pill.success { background: rgba(15, 168, 109, 0.13); color: #0f8d5f; }
+
+    .meta-line { color: var(--muted); font-size: 0.87rem; margin: 0.5rem 0; }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 0.7rem;
+    }
+
+    .bookmark {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 0.6rem;
+      padding: 0.4rem 0.6rem;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .stack {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 0.85rem;
+    }
+
+    ul { padding-left: 1.1rem; margin: 0.2rem 0 0; }
+    li { margin-bottom: 0.45rem; color: var(--muted); }
+
+    .dark {
+      background: #12183a;
+      border-color: transparent;
+      color: #fff;
+    }
+    .dark .muted, .dark li { color: #c0c8ff; }
+
+    .analytics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+
+    .signal {
+      border: 1px dashed var(--border);
+      border-radius: 0.8rem;
+      padding: 0.72rem;
+      background: #fcfdff;
+    }
+
+    .status {
+      margin-top: 0.55rem;
       font-size: 0.9rem;
+      min-height: 1.2rem;
+    }
+
+    .status.success { color: var(--success); }
+    .status.warn { color: var(--warning); }
+
+    footer {
+      margin: 2.5rem 0 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 920px) {
+      .hero { grid-template-columns: 1fr; }
+      .analytics { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .analytics { grid-template-columns: 1fr; }
     }
   </style>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Vallox",
+      "url": "https://vallox.in/",
+      "description": "Marketplace for buying and selling hackathon projects across India",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://vallox.in/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
 </head>
 <body>
-  <header>
-    <h1>Audio Modulation Studio</h1>
-    <p class="subtitle">Capture, upload, and visualize classic modulation schemes directly in your browser.</p>
-  </header>
-
-  <section class="grid two">
-    <article class="card">
-      <h2>Live Recording</h2>
-      <p>Record directly through your microphone and generate real-time modulation views.</p>
-      <div class="controls">
-        <button id="startRecord">Start Recording</button>
-        <button id="stopRecord" class="secondary" disabled>Stop &amp; Analyze</button>
-      </div>
-      <div class="status" id="recordStatus">Microphone idle.</div>
-      <div class="error" id="recordError"></div>
-    </article>
-
-    <article class="card">
-      <h2>Upload Audio File</h2>
-      <p>Bring your own WAV/MP3/OGG file and explore how modulation transforms the waveform.</p>
-      <div class="controls">
-        <label class="upload-label" for="audioFile">Choose Audio File</label>
-        <input type="file" id="audioFile" accept="audio/*" />
-      </div>
-      <div class="status" id="uploadStatus">Awaiting file upload.</div>
-      <div class="error" id="uploadError"></div>
-    </article>
-  </section>
-
-  <section class="card">
-    <h2>Modulation Visualizer</h2>
-    <p>Each canvas renders 2,048 samples of the processed waveform.</p>
-    <div class="graphs">
-      <div class="graph-card">
-        <h3>Amplitude Modulation (AM)</h3>
-        <canvas id="amCanvas" width="480" height="180"></canvas>
-      </div>
-      <div class="graph-card">
-        <h3>Frequency Modulation (FM)</h3>
-        <canvas id="fmCanvas" width="480" height="180"></canvas>
-      </div>
-      <div class="graph-card">
-        <h3>Double Sideband SC</h3>
-        <canvas id="dsbCanvas" width="480" height="180"></canvas>
-      </div>
-      <div class="graph-card">
-        <h3>Single Sideband SC</h3>
-        <canvas id="ssbCanvas" width="480" height="180"></canvas>
+  <header class="topbar">
+    <div class="container nav" aria-label="Main navigation">
+      <div class="brand"><span class="logo-dot" aria-hidden="true"></span>Vallox</div>
+      <nav class="nav-links">
+        <a href="#discover">Discover</a>
+        <a href="#listings">Listings</a>
+        <a href="#community">Community</a>
+        <a href="#calendar">Calendar</a>
+      </nav>
+      <div class="actions">
+        <button class="btn ghost" type="button">Login</button>
+        <button class="btn primary" type="button">Start Selling</button>
       </div>
     </div>
-  </section>
+  </header>
+
+  <main class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <article class="card">
+        <span class="eyebrow">India’s hackathon project marketplace</span>
+        <h1 id="hero-title">Vallox helps student and developer teams turn hackathon ideas into real business value.</h1>
+        <p class="muted">
+          Build trust with verification badges, discover projects with powerful filters, and complete buyer-seller conversations through structured workflows.
+        </p>
+        <div class="actions" style="margin-top:.8rem">
+          <button class="btn primary" type="button">Publish Your Project</button>
+          <button class="btn ghost" type="button">Explore Trending Projects</button>
+        </div>
+      </article>
+
+      <article class="card" aria-label="Marketplace metrics">
+        <h3>Vallox Marketplace Snapshot</h3>
+        <div class="kpi-grid">
+          <div class="kpi"><b>2,900+</b><small>Projects listed</small></div>
+          <div class="kpi"><b>810+</b><small>Verified sellers</small></div>
+          <div class="kpi"><b>₹6.2Cr</b><small>Estimated deal value</small></div>
+          <div class="kpi"><b>220+</b><small>Hackathons indexed</small></div>
+        </div>
+        <p class="muted" style="margin: .7rem 0 0; font-size:.9rem;">Coverage across Bengaluru, Hyderabad, Delhi, Pune, Chennai, Jaipur, and more.</p>
+      </article>
+    </section>
+
+    <section id="discover" aria-labelledby="discover-title">
+      <div class="section-head">
+        <h2 id="discover-title">Project Discovery Engine</h2>
+        <p class="muted">Filter by stack, domain, price band, hackathon city, and maturity.</p>
+      </div>
+
+      <div class="toolbar card" role="search">
+        <input id="searchInput" placeholder="Search project, tag, or problem statement" aria-label="Search projects" />
+        <select id="stackFilter" aria-label="Filter by technology stack">
+          <option value="all">Stack: All</option>
+          <option value="AI/ML">AI/ML</option>
+          <option value="React">React</option>
+          <option value="Flutter">Flutter</option>
+          <option value="IoT">IoT</option>
+          <option value="Blockchain">Blockchain</option>
+        </select>
+        <select id="domainFilter" aria-label="Filter by domain">
+          <option value="all">Domain: All</option>
+          <option value="HealthTech">HealthTech</option>
+          <option value="FinTech">FinTech</option>
+          <option value="AgriTech">AgriTech</option>
+          <option value="EdTech">EdTech</option>
+          <option value="CivicTech">CivicTech</option>
+        </select>
+        <select id="priceFilter" aria-label="Filter by price">
+          <option value="all">Price: All</option>
+          <option value="low">Under ₹1L</option>
+          <option value="mid">₹1L - ₹5L</option>
+          <option value="high">₹5L+</option>
+        </select>
+        <select id="cityFilter" aria-label="Filter by city">
+          <option value="all">City: All</option>
+          <option value="Bengaluru">Bengaluru</option>
+          <option value="Pune">Pune</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Indore">Indore</option>
+        </select>
+        <select id="maturityFilter" aria-label="Filter by maturity">
+          <option value="all">Maturity: All</option>
+          <option value="MVP">MVP</option>
+          <option value="Pilot-ready">Pilot-ready</option>
+          <option value="Production-ready">Production-ready</option>
+        </select>
+      </div>
+
+      <div class="result-meta">
+        <span id="resultCount">0 projects found</span>
+        <span>Sorted by relevance and latest verified activity.</span>
+      </div>
+      <div id="projectGrid" class="project-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="stack" id="listings">
+      <article class="card">
+        <h3>Seller Listing Checklist</h3>
+        <ul>
+          <li>Project name, tagline, detailed problem statement, and architecture summary.</li>
+          <li>Screenshots, live demo, video walkthrough, and optional GitHub preview link.</li>
+          <li>Hackathon metadata (event name, city, date, ranking, award details).</li>
+          <li>Pricing model support: fixed price, make-an-offer, license, or hybrid deal.</li>
+          <li>Contract preferences, transfer scope, and post-sale support duration.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Transaction & Trust Layer</h3>
+        <ul>
+          <li>Dual-role onboarding for buyers and sellers with profile verification flow.</li>
+          <li>Structured inquiry inbox and negotiation stages for transparent progress.</li>
+          <li>Escrow-ready architecture for safe transactions and milestone release.</li>
+          <li>Completion-based ratings/reviews to strengthen buyer confidence.</li>
+          <li>Email notifications for offers, counters, contract updates, and bookmarks.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="stack" id="community">
+      <article class="card dark">
+        <h3>Community Growth Features</h3>
+        <ul>
+          <li>Success stories from acquired projects and startup spin-offs.</li>
+          <li>Educational blog for valuation, licensing, and sales-readiness.</li>
+          <li>Collaboration requests for designers, co-founders, and mentors.</li>
+          <li>Networking rooms for campus clubs, hackathon teams, and buyers.</li>
+        </ul>
+      </article>
+
+      <article class="card dark" id="calendar">
+        <h3>Upcoming Hackathons Calendar</h3>
+        <ul>
+          <li>Hack Delhi 2026 • 18 Mar • Open to university teams.</li>
+          <li>Build for Bharat Pune • 2 Apr • Civic + AI themes.</li>
+          <li>Finverse Hyderabad • 20 Apr • BFSI and reg-tech tracks.</li>
+          <li>South Code Sprint Chennai • 5 May • Mobility + IoT tracks.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="stack" style="margin-top:1.2rem">
+      <article class="card" aria-labelledby="analytics-title">
+        <h3 id="analytics-title">Seller Analytics Demo</h3>
+        <p class="muted">Monitor your listing performance and buyer intent.</p>
+        <div class="analytics">
+          <div class="signal"><b id="viewStat">4,120</b><div class="muted">Views</div></div>
+          <div class="signal"><b id="inquiryStat">186</b><div class="muted">Inquiries</div></div>
+          <div class="signal"><b id="saveStat">640</b><div class="muted">Saves</div></div>
+        </div>
+      </article>
+
+      <article class="card" aria-labelledby="contact-title">
+        <h3 id="contact-title">Buyer Inquiry Simulator</h3>
+        <label for="buyerName" class="muted">Buyer name</label>
+        <input id="buyerName" placeholder="e.g., Product Lead at StartupX" />
+        <label for="offerInput" class="muted" style="margin-top:.55rem;display:block">Offer amount (₹)</label>
+        <input id="offerInput" type="number" min="10000" step="5000" placeholder="e.g., 250000" />
+        <label for="msgInput" class="muted" style="margin-top:.55rem;display:block">Message</label>
+        <textarea id="msgInput" rows="4" placeholder="We are interested in this project for our pilot rollout."></textarea>
+        <div class="actions" style="margin-top:.6rem">
+          <button id="sendInquiry" class="btn primary" type="button">Send Inquiry</button>
+          <button id="clearForm" class="btn ghost" type="button">Clear</button>
+        </div>
+        <div id="formStatus" class="status" aria-live="polite"></div>
+      </article>
+    </section>
+
+    <footer>
+      Vallox • Built for India’s hackathon economy • Mobile-first UX • Semantic SEO foundations for better search discoverability.
+    </footer>
+  </main>
 
   <script>
-    const TARGET_SAMPLES = 2048;
-    const CARRIER_FREQ = 4000;
-    const AM_INDEX = 0.8;
-    const FM_INDEX = 2000;
+    const projects = [
+      {
+        name: "MediBridge AI",
+        tagline: "Rural triage assistant with multilingual symptom guidance",
+        problem: "Primary clinics in tier-2/3 locations need fast triage decision support.",
+        stack: ["AI/ML", "React"],
+        domain: "HealthTech",
+        price: 350000,
+        maturity: "Pilot-ready",
+        hackathon: "Smart India Hackathon",
+        city: "Pune",
+        verified: true,
+        featured: true
+      },
+      {
+        name: "CropSense Grid",
+        tagline: "Satellite and IoT-based crop advisory for small farmers",
+        problem: "Small farms often miss hyperlocal alerts on irrigation and pest risk.",
+        stack: ["IoT", "Flutter"],
+        domain: "AgriTech",
+        price: 90000,
+        maturity: "MVP",
+        hackathon: "KisanTech Sprint",
+        city: "Indore",
+        verified: false,
+        featured: false
+      },
+      {
+        name: "EduPulse",
+        tagline: "AI evaluator for interview and communication training",
+        problem: "Students need affordable, repeatable interview practice with feedback.",
+        stack: ["AI/ML", "React"],
+        domain: "EdTech",
+        price: 520000,
+        maturity: "Production-ready",
+        hackathon: "Hack Bengaluru",
+        city: "Bengaluru",
+        verified: true,
+        featured: true
+      },
+      {
+        name: "ChainLedger Lite",
+        tagline: "SME invoice authenticity and compliance tracker",
+        problem: "SMEs struggle with invoice disputes and manual audit preparation.",
+        stack: ["Blockchain"],
+        domain: "FinTech",
+        price: 140000,
+        maturity: "Pilot-ready",
+        hackathon: "Finverse Hack",
+        city: "Hyderabad",
+        verified: true,
+        featured: false
+      },
+      {
+        name: "CivicFlow",
+        tagline: "Citizen issue reporting and ward-level resolution monitoring",
+        problem: "Citizens and civic teams lack transparent complaint resolution trails.",
+        stack: ["Flutter", "React"],
+        domain: "CivicTech",
+        price: 70000,
+        maturity: "MVP",
+        hackathon: "Build for Bharat",
+        city: "Delhi",
+        verified: false,
+        featured: false
+      }
+    ];
 
-    const canvases = {
-      am: document.getElementById("amCanvas"),
-      fm: document.getElementById("fmCanvas"),
-      dsb: document.getElementById("dsbCanvas"),
-      ssb: document.getElementById("ssbCanvas"),
+    const filters = {
+      search: document.getElementById("searchInput"),
+      stack: document.getElementById("stackFilter"),
+      domain: document.getElementById("domainFilter"),
+      price: document.getElementById("priceFilter"),
+      city: document.getElementById("cityFilter"),
+      maturity: document.getElementById("maturityFilter")
     };
 
-    let mediaRecorder;
-    let recordedChunks = [];
+    const projectGrid = document.getElementById("projectGrid");
+    const resultCount = document.getElementById("resultCount");
+    const savedKey = "vallox_saved_projects";
+    const bookmarked = new Set(JSON.parse(localStorage.getItem(savedKey) || "[]"));
 
-    const recordStatus = document.getElementById("recordStatus");
-    const recordError = document.getElementById("recordError");
-    const uploadStatus = document.getElementById("uploadStatus");
-    const uploadError = document.getElementById("uploadError");
+    function inPriceBand(price, band) {
+      if (band === "low") return price < 100000;
+      if (band === "mid") return price >= 100000 && price <= 500000;
+      if (band === "high") return price > 500000;
+      return true;
+    }
 
-    document.getElementById("startRecord").addEventListener("click", async () => {
-      recordError.textContent = "";
-      if (!navigator.mediaDevices?.getUserMedia) {
-        recordError.textContent = "Microphone access is not supported in this browser.";
+    function filterProjects() {
+      const query = filters.search.value.trim().toLowerCase();
+      const stack = filters.stack.value;
+      const domain = filters.domain.value;
+      const price = filters.price.value;
+      const city = filters.city.value;
+      const maturity = filters.maturity.value;
+
+      return projects.filter((project) => {
+        const textBlob = `${project.name} ${project.tagline} ${project.problem} ${project.stack.join(" ")}`.toLowerCase();
+        const matchesSearch = !query || textBlob.includes(query);
+        const matchesStack = stack === "all" || project.stack.includes(stack);
+        const matchesDomain = domain === "all" || project.domain === domain;
+        const matchesPrice = inPriceBand(project.price, price);
+        const matchesCity = city === "all" || project.city === city;
+        const matchesMaturity = maturity === "all" || project.maturity === maturity;
+        return matchesSearch && matchesStack && matchesDomain && matchesPrice && matchesCity && matchesMaturity;
+      });
+    }
+
+    function renderProjects() {
+      const filtered = filterProjects();
+      resultCount.textContent = `${filtered.length} project${filtered.length === 1 ? "" : "s"} found`;
+
+      if (!filtered.length) {
+        projectGrid.innerHTML = `<article class="card"><h3>No matching projects</h3><p class="muted">Try broader filters or clear the search input.</p></article>`;
         return;
       }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        recordedChunks = [];
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size) recordedChunks.push(e.data);
-        };
-        mediaRecorder.onstop = () => stream.getTracks().forEach((t) => t.stop());
-        mediaRecorder.start();
-        recordStatus.textContent = "Recording... speak now and press stop when ready.";
-        toggleRecordButtons(true);
-      } catch (err) {
-        recordError.textContent = "Microphone permission denied.";
-      }
+
+      projectGrid.innerHTML = filtered.map((project) => {
+        const tagBadges = project.stack.map((tag) => `<span class="pill">${tag}</span>`).join("");
+        const badges = `${project.featured ? '<span class="pill">Featured</span>' : ""}${project.verified ? '<span class="pill success">Verified</span>' : ""}`;
+        const isSaved = bookmarked.has(project.name);
+
+        return `
+          <article class="card">
+            <div>${badges}</div>
+            <h3>${project.name}</h3>
+            <p class="muted" style="margin:0">${project.tagline}</p>
+            <p class="meta-line">${project.problem}</p>
+            <div>${tagBadges}</div>
+            <p class="meta-line">${project.domain} • ${project.maturity} • ${project.hackathon}, ${project.city}</p>
+            <div class="price-row">
+              <strong>₹${project.price.toLocaleString("en-IN")}</strong>
+              <button class="bookmark" type="button" onclick="toggleBookmark('${project.name.replace(/'/g, "\\'")}')">${isSaved ? "★ Saved" : "☆ Save"}</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      document.getElementById("saveStat").textContent = (640 + bookmarked.size).toLocaleString("en-IN");
+    }
+
+    function persistBookmarks() {
+      localStorage.setItem(savedKey, JSON.stringify([...bookmarked]));
+    }
+
+    function toggleBookmark(name) {
+      if (bookmarked.has(name)) bookmarked.delete(name);
+      else bookmarked.add(name);
+      persistBookmarks();
+      renderProjects();
+    }
+    window.toggleBookmark = toggleBookmark;
+
+    Object.values(filters).forEach((el) => {
+      el.addEventListener("input", renderProjects);
+      el.addEventListener("change", renderProjects);
     });
 
-    document.getElementById("stopRecord").addEventListener("click", async () => {
-      if (!mediaRecorder || mediaRecorder.state === "inactive") return;
-      recordStatus.textContent = "Processing recording...";
-      toggleRecordButtons(false);
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(recordedChunks, { type: "audio/webm" });
-        await analyzeBlob(blob, "Live recording analyzed.");
-      };
-      mediaRecorder.stop();
+    document.getElementById("sendInquiry").addEventListener("click", () => {
+      const buyerName = document.getElementById("buyerName").value.trim();
+      const offer = Number(document.getElementById("offerInput").value);
+      const message = document.getElementById("msgInput").value.trim();
+      const status = document.getElementById("formStatus");
+
+      if (!buyerName || !offer || !message) {
+        status.textContent = "Please fill buyer name, offer amount, and message before sending.";
+        status.className = "status warn";
+        return;
+      }
+
+      if (offer < 10000) {
+        status.textContent = "Offer amount should be at least ₹10,000.";
+        status.className = "status warn";
+        return;
+      }
+
+      status.textContent = `Inquiry sent from ${buyerName} with an offer of ₹${offer.toLocaleString("en-IN")}. Seller notified by email.`;
+      status.className = "status success";
+      const inquiryStat = document.getElementById("inquiryStat");
+      inquiryStat.textContent = (Number(inquiryStat.textContent.replace(/,/g, "")) + 1).toLocaleString("en-IN");
     });
 
-    document.getElementById("audioFile").addEventListener("change", async (event) => {
-      uploadError.textContent = "";
-      const file = event.target.files?.[0];
-      if (!file) return;
-      uploadStatus.textContent = "Decoding audio...";
-      await analyzeBlob(file, `Loaded "${file.name}".`);
+    document.getElementById("clearForm").addEventListener("click", () => {
+      document.getElementById("buyerName").value = "";
+      document.getElementById("offerInput").value = "";
+      document.getElementById("msgInput").value = "";
+      const status = document.getElementById("formStatus");
+      status.textContent = "Form cleared.";
+      status.className = "status";
     });
 
-    function toggleRecordButtons(isRecording) {
-      document.getElementById("startRecord").disabled = isRecording;
-      document.getElementById("stopRecord").disabled = !isRecording;
-    }
-
-    async function analyzeBlob(blob, successMessage) {
-      try {
-        const arrayBuffer = await blob.arrayBuffer();
-        const audioCtx = new AudioContext();
-        const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-        audioCtx.close();
-        const results = processAudioBuffer(audioBuffer);
-        drawAll(results);
-        recordStatus.textContent = successMessage || "Recording analyzed.";
-        uploadStatus.textContent = successMessage || "File analyzed.";
-      } catch (error) {
-        console.error(error);
-        recordError.textContent = "Unable to analyze audio.";
-        uploadError.textContent = "Unable to analyze audio.";
-      }
-    }
-
-    function processAudioBuffer(audioBuffer) {
-      const channelData = audioBuffer.getChannelData(0);
-      const downsampled = downsample(channelData);
-      const normalized = normalize(downsampled);
-      return generateModulations(normalized, audioBuffer.sampleRate * (normalized.length / channelData.length));
-    }
-
-    function downsample(data) {
-      if (data.length <= TARGET_SAMPLES) return data.slice();
-      const step = data.length / TARGET_SAMPLES;
-      const result = new Float32Array(TARGET_SAMPLES);
-      for (let i = 0; i < TARGET_SAMPLES; i++) {
-        result[i] = data[Math.floor(i * step)];
-      }
-      return result;
-    }
-
-    function normalize(data) {
-      const max = Math.max(...data.map((v) => Math.abs(v))) || 1;
-      return data.map((v) => v / max);
-    }
-
-    function generateModulations(samples, sampleRate) {
-      const dt = 1 / (sampleRate || 44100);
-      const am = new Float32Array(samples.length);
-      const fm = new Float32Array(samples.length);
-      const dsb = new Float32Array(samples.length);
-      const ssb = new Float32Array(samples.length);
-      let fmPhase = 0;
-      const analytic = hilbertTransform(samples);
-      for (let i = 0; i < samples.length; i++) {
-        const t = i * dt;
-        const carrier = Math.cos(2 * Math.PI * CARRIER_FREQ * t);
-        am[i] = (1 + AM_INDEX * samples[i]) * carrier;
-        fmPhase += 2 * Math.PI * (CARRIER_FREQ + FM_INDEX * samples[i]) * dt;
-        fm[i] = Math.cos(fmPhase);
-        dsb[i] = samples[i] * carrier;
-        const quadrature = Math.sin(2 * Math.PI * CARRIER_FREQ * t);
-        ssb[i] = samples[i] * carrier - analytic.imag[i] * quadrature;
-      }
-      return { am, fm, dsb, ssb };
-    }
-
-    function hilbertTransform(samples) {
-      const n = nearestPowerOfTwo(samples.length);
-      const re = new Float32Array(n);
-      const im = new Float32Array(n);
-      re.set(samples);
-      const spectrum = fft(re, im);
-      for (let i = 1; i < n / 2; i++) {
-        spectrum.re[i] *= 2;
-        spectrum.im[i] *= 2;
-      }
-      for (let i = n / 2 + 1; i < n; i++) {
-        spectrum.re[i] = 0;
-        spectrum.im[i] = 0;
-      }
-      const analytic = ifft(spectrum.re, spectrum.im);
-      return {
-        real: analytic.re.slice(0, samples.length),
-        imag: analytic.im.slice(0, samples.length),
-      };
-    }
-
-    function nearestPowerOfTwo(value) {
-      return 2 ** Math.ceil(Math.log2(value));
-    }
-
-    function fft(real, imag) {
-      const n = real.length;
-      if ((n & (n - 1)) !== 0) throw new Error("FFT length must be power of two.");
-      const re = real.slice();
-      const im = imag.slice();
-      bitReverseShuffle(re, im);
-      for (let len = 2; len <= n; len <<= 1) {
-        const ang = (-2 * Math.PI) / len;
-        const wlen = { re: Math.cos(ang), im: Math.sin(ang) };
-        for (let i = 0; i < n; i += len) {
-          let wRe = 1;
-          let wIm = 0;
-          for (let j = 0; j < len / 2; j++) {
-            const uRe = re[i + j];
-            const uIm = im[i + j];
-            const vRe = re[i + j + len / 2] * wRe - im[i + j + len / 2] * wIm;
-            const vIm = re[i + j + len / 2] * wIm + im[i + j + len / 2] * wRe;
-            re[i + j] = uRe + vRe;
-            im[i + j] = uIm + vIm;
-            re[i + j + len / 2] = uRe - vRe;
-            im[i + j + len / 2] = uIm - vIm;
-            const nextWRe = wRe * wlen.re - wIm * wlen.im;
-            const nextWIm = wRe * wlen.im + wIm * wlen.re;
-            wRe = nextWRe;
-            wIm = nextWIm;
-          }
-        }
-      }
-      return { re, im };
-    }
-
-    function ifft(real, imag) {
-      const conjugateRe = real.slice();
-      const conjugateIm = imag.map((v) => -v);
-      const spectrum = fft(conjugateRe, conjugateIm);
-      const n = real.length;
-      return {
-        re: spectrum.re.map((v) => v / n),
-        im: spectrum.im.map((v) => -v / n),
-      };
-    }
-
-    function bitReverseShuffle(re, im) {
-      const n = re.length;
-      let j = 0;
-      for (let i = 0; i < n; i++) {
-        if (i < j) {
-          [re[i], re[j]] = [re[j], re[i]];
-          [im[i], im[j]] = [im[j], im[i]];
-        }
-        let bit = n >> 1;
-        while (j & bit) {
-          j ^= bit;
-          bit >>= 1;
-        }
-        j ^= bit;
-      }
-    }
-
-    function drawAll(results) {
-      drawWaveform(canvases.am, results.am, "#38bdf8");
-      drawWaveform(canvases.fm, results.fm, "#a78bfa");
-      drawWaveform(canvases.dsb, results.dsb, "#34d399");
-      drawWaveform(canvases.ssb, results.ssb, "#f472b6");
-    }
-
-    function drawWaveform(canvas, data, stroke) {
-      const ctx = canvas.getContext("2d");
-      const { width, height } = canvas;
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "rgba(15,23,42,0.9)";
-      ctx.fillRect(0, 0, width, height);
-      ctx.strokeStyle = stroke;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      const len = data.length;
-      for (let i = 0; i < len; i++) {
-        const x = (i / (len - 1)) * width;
-        const y = height / 2 - (data[i] || 0) * (height / 2 - 10);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.1)";
-      ctx.beginPath();
-      ctx.moveTo(0, height / 2);
-      ctx.lineTo(width, height / 2);
-      ctx.stroke();
-    }
-
-    (function initPlaceholders() {
-      const placeholder = new Float32Array(TARGET_SAMPLES);
-      drawAll({ am: placeholder, fm: placeholder, dsb: placeholder, ssb: placeholder });
-    })();
+    renderProjects();
   </script>
 </body>
 </html>
-
